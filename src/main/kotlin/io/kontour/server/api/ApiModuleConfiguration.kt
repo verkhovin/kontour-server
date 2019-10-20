@@ -1,6 +1,8 @@
 package io.kontour.server.api
 
-import io.kontour.server.api.user.UserRepository
+import com.mongodb.client.MongoClients
+import com.mongodb.client.MongoDatabase
+import io.kontour.server.api.user.repo.MongoUserRepository
 import io.kontour.server.api.user.UserService
 import io.ktor.application.Application
 import io.ktor.application.call
@@ -11,15 +13,16 @@ import io.ktor.routing.get
 import io.ktor.routing.post
 import io.ktor.routing.routing
 import org.koin.dsl.module
-import org.koin.ktor.ext.inject
+import org.koin.ktor.ext.get
 
 val apiModule = module {
-    single { UserRepository() }
+    single { MongoClients.create().getDatabase("kontour") }
+    single { MongoUserRepository(get<MongoDatabase>().getCollection("users")) }
     single { UserService(get()) }
 }
 
 fun Application.apiRoutes() {
-    val userService by inject<UserService>()
+    val userService: UserService = get()
 
     routing {
         get("/api/version") {
@@ -27,6 +30,9 @@ fun Application.apiRoutes() {
         }
         post("/api/user") {
             call.respond(userService.createUser(call.receive()))
+        }
+        get("/api/user/{id}") {
+            call.respond(userService.getUser(call.parameters.get("id")!!))
         }
     }
 }

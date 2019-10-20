@@ -1,8 +1,10 @@
 package io.kontour.server.api.user.dto
 
 data class UserDTO(
-    val id: String,
-    val login: String,
-    val name: String,
-    val email: String
+    var _id: String?,
+    var login: String,
+    var name: String,
+    var email: String,
+    var pictureUrl: String?,
+    var active: Boolean?
 )

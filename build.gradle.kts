@@ -17,11 +17,14 @@ repositories {
 
 dependencies {
     implementation(kotlin("stdlib-jdk8"))
-
-    implementation("org.litote.kmongo:kmongo:3.11.1")
+    //ktor
     implementation("io.ktor:ktor-server-netty:$ktorVersion")
     implementation("io.ktor:ktor-gson:$ktorVersion")
+    implementation("ch.qos.logback:logback-classic:1.2.3")
+    //koin
     implementation("org.koin:koin-ktor:$koinVersion")
+    //mongo
+    implementation("org.mongodb:mongodb-driver-sync:3.11.1")
 }
 
 tasks.withType<KotlinCompile> {
