@@ -3,8 +3,8 @@ package io.kontour.server.api.user
 import io.kontour.server.api.user.dto.CreateUserRequest
 import io.kontour.server.api.user.dto.CreateUserResponse
 import io.kontour.server.api.user.dto.UserDTO
-import io.kontour.server.api.user.model.User
-import io.kontour.server.api.user.repo.MongoUserRepository
+import io.kontour.server.storage.user.model.User
+import io.kontour.server.storage.user.repo.MongoUserRepository
 
 class UserService(private val mongoUserRepository: MongoUserRepository) {
     fun createUser(createUserRequest: CreateUserRequest): CreateUserResponse {

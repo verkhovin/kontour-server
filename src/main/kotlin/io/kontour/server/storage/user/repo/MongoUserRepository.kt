@@ -1,8 +1,8 @@
-package io.kontour.server.api.user.repo
+package io.kontour.server.storage.user.repo
 
 import com.mongodb.client.MongoCollection
 import com.mongodb.client.model.Filters.eq
-import io.kontour.server.api.user.model.User
+import io.kontour.server.storage.user.model.User
 import io.kontour.server.common.objectId
 import org.bson.Document
 import org.bson.types.ObjectId

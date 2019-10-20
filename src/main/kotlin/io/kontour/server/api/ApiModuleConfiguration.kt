@@ -2,7 +2,7 @@ package io.kontour.server.api
 
 import com.mongodb.client.MongoClients
 import com.mongodb.client.MongoDatabase
-import io.kontour.server.api.user.repo.MongoUserRepository
+import io.kontour.server.storage.user.repo.MongoUserRepository
 import io.kontour.server.api.user.UserService
 import io.ktor.application.Application
 import io.ktor.application.call

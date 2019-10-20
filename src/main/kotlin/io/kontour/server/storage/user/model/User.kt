@@ -1,4 +1,4 @@
-package io.kontour.server.api.user.model
+package io.kontour.server.storage.user.model
 
 data class User(
     val id: String?,
