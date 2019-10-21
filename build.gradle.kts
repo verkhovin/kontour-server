@@ -25,6 +25,8 @@ dependencies {
     implementation("org.koin:koin-ktor:$koinVersion")
     //mongo
     implementation("org.mongodb:mongodb-driver-sync:3.11.1")
+    //redis
+    implementation("redis.clients:jedis:3.1.0")
 }
 
 tasks.withType<KotlinCompile> {

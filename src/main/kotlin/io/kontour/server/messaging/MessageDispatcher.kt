@@ -12,6 +12,10 @@ class MessageDispatcher(
     }
 
     fun handleChatMessage(message: ChatMessage) {
-
+        /*
+        1. get all users of the chat the message is addresed to
+        2. get connections for that users
+        3. send them message
+         */
     }
 }
