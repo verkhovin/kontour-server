@@ -1,28 +1,51 @@
 package io.kontour.server
 
-import io.kontour.server.api.apiModule
+import com.google.gson.Gson
+import com.mongodb.client.MongoClients
+import com.mongodb.client.MongoDatabase
 import io.kontour.server.api.apiRoutes
+import io.kontour.server.api.user.UserService
+import io.kontour.server.messaging.MessageDispatcher
+import io.kontour.server.messaging.MessagingServer
+import io.kontour.server.messaging.connection.ChatToConnectedUserRepository
+import io.kontour.server.messaging.connection.ConnectionRepository
+import io.kontour.server.messaging.connection.RedisChatToConnectedUserRepository
+import io.kontour.server.messaging.user.TokenStore
+import io.kontour.server.storage.chat.ChatRepository
+import io.kontour.server.storage.chat.MongoChatRepository
+import io.kontour.server.storage.user.repo.MongoUserRepository
 import io.ktor.application.Application
 import io.ktor.application.install
 import io.ktor.features.CallLogging
 import io.ktor.features.ContentNegotiation
 import io.ktor.gson.gson
-import io.ktor.network.selector.ActorSelectorManager
-import io.ktor.network.sockets.aSocket
-import io.ktor.network.sockets.openReadChannel
-import io.ktor.network.sockets.openWriteChannel
 import io.ktor.server.engine.commandLineEnvironment
 import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.io.ByteWriteChannel
-import kotlinx.coroutines.io.readUTF8Line
-import kotlinx.coroutines.io.writeStringUtf8
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import org.koin.core.KoinComponent
+import org.koin.core.context.GlobalContext.get
 import org.koin.core.context.startKoin
-import java.net.InetSocketAddress
+import org.koin.core.inject
+import org.koin.dsl.module
+import redis.clients.jedis.Jedis
 import java.text.DateFormat
+
+val kontourModule = module {
+    //api
+    single { MongoClients.create().getDatabase("kontour") }
+    single { MongoUserRepository(get<MongoDatabase>().getCollection("users")) }
+    single { UserService(get()) }
+
+    //messaging
+    single { TokenStore() }
+    single { Jedis() }
+    single { MongoChatRepository(get<MongoDatabase>().getCollection("chats")) as ChatRepository}
+    single { RedisChatToConnectedUserRepository(get()) as ChatToConnectedUserRepository }
+    single { ConnectionRepository() }
+    single { MessageDispatcher(get(), get()) }
+    single { MessagingServer(8082, get(), get(), get(), get(), get(), Gson()) }
+}
 
 fun Application.configuration() {
     install(CallLogging) {
@@ -40,8 +63,16 @@ fun Application.configuration() {
 
 fun main(args: Array<String>) {
     startKoin {
-        modules(apiModule)
+        modules(kontourModule)
     }
 
-    embeddedServer(Netty, commandLineEnvironment(args)).start()
+    KontourServer().start(args)
+}
+
+class KontourServer() : KoinComponent {
+    fun start(args: Array<String>) = runBlocking {
+        embeddedServer(Netty, commandLineEnvironment(args)).start()
+        val messagingServer: MessagingServer by inject()
+        messagingServer.start()
+    }
 }

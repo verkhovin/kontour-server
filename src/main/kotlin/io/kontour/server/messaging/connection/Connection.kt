@@ -14,6 +14,7 @@ import kotlinx.coroutines.io.ByteWriteChannel
 import kotlinx.coroutines.io.readUTF8Line
 
 class Connection(
+    private val socket: Socket,
     private val input: ByteReadChannel,
     private val output: ByteWriteChannel,
     private val messageDispatcher: MessageDispatcher

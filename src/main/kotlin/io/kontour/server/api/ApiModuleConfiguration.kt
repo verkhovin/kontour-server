@@ -15,12 +15,6 @@ import io.ktor.routing.routing
 import org.koin.dsl.module
 import org.koin.ktor.ext.get
 
-val apiModule = module {
-    single { MongoClients.create().getDatabase("kontour") }
-    single { MongoUserRepository(get<MongoDatabase>().getCollection("users")) }
-    single { UserService(get()) }
-}
-
 fun Application.apiRoutes() {
     val userService: UserService = get()
 

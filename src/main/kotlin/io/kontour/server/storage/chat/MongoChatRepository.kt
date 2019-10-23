@@ -1,12 +1,13 @@
 package io.kontour.server.storage.chat
 
-import com.mongodb.client.MongoDatabase
+import com.mongodb.client.MongoCollection
 import com.mongodb.client.model.Filters.eq
+import org.bson.Document
 
-class MongoChatRepository(private val mongo: MongoDatabase): ChatRepository {
+class MongoChatRepository(private val chatCollection: MongoCollection<Document>): ChatRepository {
     override fun getChatIdsByUserId(userId: String): List<String> =
-        mongo.getCollection("chat_user")
-            .find(eq("user_id", userId))
-            .map { it.getString("chat_id") }
+        chatCollection
+            .find(eq("userIds", userId))
+            .map { it.getObjectId("_id").toHexString() }
             .toList()
 }
