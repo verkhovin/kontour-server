@@ -16,8 +16,22 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package io.kontour.server.common
+package io.kontour.server.messaging.connection
 
-import org.bson.types.ObjectId
+import redis.clients.jedis.Jedis
 
-fun objectId(id: String?) = if(id == null) ObjectId() else ObjectId(id)
+class RedisChatConnectedUsersRepository(private val jedis: Jedis) : ChatConnectedMembersRepository {
+    override fun userIds(chatId: String): Set<String> = jedis.smembers("chat_user:$chatId")
+
+    override fun addUser(userId: String, chatIds: Collection<String>) {
+        chatIds.forEach { chatId ->
+            jedis.sadd("chat_user:$chatId", userId)
+        }
+    }
+
+    override fun deleteUser(userId: String, chatIds: Collection<String>) {
+        chatIds.forEach { chatId ->
+            jedis.srem("chat_user:$chatId", userId)
+        }
+    }
+}

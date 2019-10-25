@@ -16,8 +16,13 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package io.kontour.server.common
+package io.kontour.server.storage.user.model
 
-import org.bson.types.ObjectId
-
-fun objectId(id: String?) = if(id == null) ObjectId() else ObjectId(id)
+data class User(
+    val id: String?,
+    val login: String,
+    val name: String,
+    val email: String,
+    val pictureUrl: String = "",
+    val active: Boolean = true
+)

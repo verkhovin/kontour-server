@@ -16,8 +16,9 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package io.kontour.server.common
+package io.kontour.server.messaging.user
 
-import org.bson.types.ObjectId
-
-fun objectId(id: String?) = if(id == null) ObjectId() else ObjectId(id)
+class TokenStore {
+    //TODO
+    fun getUserIdByToken(token: String) = if(token == "verkhovin") "5dab0f9f91cad227618f6ee1" else "5daddb176ac0a00f8b1524eb"
+}

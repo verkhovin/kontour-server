@@ -16,8 +16,12 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package io.kontour.server.common
+package io.kontour.server.messaging.connection
 
-import org.bson.types.ObjectId
+interface ChatConnectedMembersRepository {
+    fun userIds(chatId: String): Collection<String>
 
-fun objectId(id: String?) = if(id == null) ObjectId() else ObjectId(id)
+    fun addUser(userId: String, chatIds: Collection<String>)
+
+    fun deleteUser(userId: String, chatIds: Collection<String>)
+}

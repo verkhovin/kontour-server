@@ -16,8 +16,25 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package io.kontour.server.common
+package io.kontour.server.messaging.connection
 
-import org.bson.types.ObjectId
+import io.ktor.network.sockets.Socket
+import io.ktor.network.sockets.openReadChannel
+import io.ktor.network.sockets.openWriteChannel
+import kotlinx.coroutines.io.ByteReadChannel
+import kotlinx.coroutines.io.ByteWriteChannel
 
-fun objectId(id: String?) = if(id == null) ObjectId() else ObjectId(id)
+class KontourSocket(socket: Socket) : Socket by socket {
+    val input: ByteReadChannel by lazy {
+        socket.openReadChannel()
+    }
+
+    val output: ByteWriteChannel by lazy {
+        socket.openWriteChannel(autoFlush = true)
+    }
+
+    val alive: Boolean
+        get() = !input.isClosedForRead && !output.isClosedForWrite
+
+    suspend fun discardInput() = input.discard(input.availableForRead.toLong())
+}

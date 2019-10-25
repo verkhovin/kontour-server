@@ -16,8 +16,15 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package io.kontour.server.common
+package io.kontour.server.storage.chat
 
-import org.bson.types.ObjectId
+data class Chat (
+    val id: String?,
+    val chatType: ChatType,
+    val name: String,
+    val userIds: Set<String>
+)
 
-fun objectId(id: String?) = if(id == null) ObjectId() else ObjectId(id)
+enum class ChatType {
+    DIRECT, THREAD, CHANNEL
+}

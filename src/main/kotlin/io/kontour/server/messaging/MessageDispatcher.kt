@@ -16,8 +16,20 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package io.kontour.server.common
+package io.kontour.server.messaging
 
-import org.bson.types.ObjectId
+import io.kontour.server.messaging.connection.ChatConnectedMembersRepository
+import io.kontour.server.messaging.connection.ConnectionStore
+import io.kontour.server.messaging.messages.ChatMessage
+import org.slf4j.LoggerFactory
 
-fun objectId(id: String?) = if(id == null) ObjectId() else ObjectId(id)
+class MessageDispatcher(
+    private val connectionStore: ConnectionStore,
+    private val chatConnectedMembersRepository: ChatConnectedMembersRepository
+) {
+    suspend fun handleChatMessage(message: ChatMessage) {
+        chatConnectedMembersRepository.userIds(message.chatId).forEach {
+            connectionStore.connectionForUser(it)?.send(message)
+        }
+    }
+}

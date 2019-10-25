@@ -16,8 +16,18 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package io.kontour.server.common
+package io.kontour.server.messaging.connection
 
-import org.bson.types.ObjectId
+class ConnectionStore {
+    private val connectionsMap = mutableMapOf<String, Connection>()
 
-fun objectId(id: String?) = if(id == null) ObjectId() else ObjectId(id)
+    fun registerConnection(userId: String, connection: Connection) {
+        connectionsMap[userId] = connection
+    }
+
+    fun connectionForUser(userId: String) = connectionsMap[userId]
+
+    fun removeConnection(userId: String) {
+        connectionsMap.remove(userId)
+    }
+}

@@ -16,8 +16,11 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package io.kontour.server.common
+package io.kontour.server.messaging.messages
 
-import org.bson.types.ObjectId
-
-fun objectId(id: String?) = if(id == null) ObjectId() else ObjectId(id)
+class ChatMessage(
+    val id: String?,
+    val authorId: String,
+    val chatId: String,
+    val text: String
+)
