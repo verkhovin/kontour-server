@@ -1,31 +1,18 @@
 package io.kontour.server.messaging
 
-import com.google.gson.Gson
-import io.kontour.server.messaging.connection.ChatToConnectedUserRepository
-import io.kontour.server.messaging.connection.Connection
-import io.kontour.server.messaging.connection.ConnectionRepository
-import io.kontour.server.messaging.messages.WelcomeMessage
-import io.kontour.server.messaging.user.TokenStore
-import io.kontour.server.storage.chat.ChatRepository
+import io.kontour.server.messaging.connection.KontourSocket
 import io.ktor.network.selector.ActorSelectorManager
-import io.ktor.network.sockets.Socket
 import io.ktor.network.sockets.aSocket
-import io.ktor.network.sockets.openReadChannel
-import io.ktor.network.sockets.openWriteChannel
+import io.ktor.util.error
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.io.readUTF8Line
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import org.slf4j.LoggerFactory
 import java.net.InetSocketAddress
 
 class MessagingServer(
     private val port: Int,
-    private val tokenStore: TokenStore,
-    private val messageDispatcher: MessageDispatcher,
-    private val chatToConnectedUserRepository: ChatToConnectedUserRepository,
-    private val chatRepository: ChatRepository,
-    private val connectionRepository: ConnectionRepository,
-    private val gson: Gson
+    private val connectionDispatcher: ConnectionDispatcher
 ) {
     private var keepRunning = true
     suspend fun start() = runBlocking {
@@ -34,9 +21,16 @@ class MessagingServer(
             val socket = server.accept()
             launch {
                 try {
-                    val connection = openConnection(socket)
-                    connection.listen()
-                } catch (e: Exception) {
+                    val kontourSocket = KontourSocket(socket)
+                    val connection = connectionDispatcher.openConnection(kontourSocket)
+                    try {
+                        connection.listen()
+                    } finally {
+                        connectionDispatcher.closeConnection(connection)
+                     }
+                } catch (e: Throwable) {
+                    logger.error(e)
+                } finally {
                     socket.close()
                 }
             }
@@ -47,19 +41,11 @@ class MessagingServer(
         keepRunning = false;
     }
 
-    private suspend fun openConnection(socket: Socket): Connection {
-        //TODO REFACTOR
-        val input = socket.openReadChannel()
-        val output = socket.openWriteChannel(autoFlush = true)
-        val plainMessage = input.readUTF8Line()
-        val welcomeMessage = gson.fromJson(plainMessage, WelcomeMessage::class.java)
-        val userId = tokenStore.getUserIdByToken(welcomeMessage.token) //here we need to validate if user can connect to chat workspace
-        val chatIds = chatRepository.getChatIdsByUserId(userId)
-        chatToConnectedUserRepository.addUser(userId, chatIds)
-        return Connection(socket, input, output, messageDispatcher).also {
-            connectionRepository.registerConnection(userId, it)
-        }
+    private fun upServer() = aSocket(ActorSelectorManager(Dispatchers.IO)).tcp().bind(InetSocketAddress(port))
+
+
+    companion object {
+        val logger = LoggerFactory.getLogger(MessagingServer::class.java)
     }
 
-    private fun upServer() = aSocket(ActorSelectorManager(Dispatchers.IO)).tcp().bind(InetSocketAddress(port))
 }

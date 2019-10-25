@@ -5,11 +5,12 @@ import com.mongodb.client.MongoClients
 import com.mongodb.client.MongoDatabase
 import io.kontour.server.api.apiRoutes
 import io.kontour.server.api.user.UserService
+import io.kontour.server.messaging.ConnectionDispatcher
 import io.kontour.server.messaging.MessageDispatcher
 import io.kontour.server.messaging.MessagingServer
-import io.kontour.server.messaging.connection.ChatToConnectedUserRepository
-import io.kontour.server.messaging.connection.ConnectionRepository
-import io.kontour.server.messaging.connection.RedisChatToConnectedUserRepository
+import io.kontour.server.messaging.connection.ChatConnectedMembersRepository
+import io.kontour.server.messaging.connection.ConnectionStore
+import io.kontour.server.messaging.connection.RedisChatConnectedUsersRepository
 import io.kontour.server.messaging.user.TokenStore
 import io.kontour.server.storage.chat.ChatRepository
 import io.kontour.server.storage.chat.MongoChatRepository
@@ -24,7 +25,6 @@ import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
 import kotlinx.coroutines.runBlocking
 import org.koin.core.KoinComponent
-import org.koin.core.context.GlobalContext.get
 import org.koin.core.context.startKoin
 import org.koin.core.inject
 import org.koin.dsl.module
@@ -41,10 +41,11 @@ val kontourModule = module {
     single { TokenStore() }
     single { Jedis() }
     single { MongoChatRepository(get<MongoDatabase>().getCollection("chats")) as ChatRepository}
-    single { RedisChatToConnectedUserRepository(get()) as ChatToConnectedUserRepository }
-    single { ConnectionRepository() }
+    single { RedisChatConnectedUsersRepository(get()) as ChatConnectedMembersRepository }
+    single { ConnectionStore() }
     single { MessageDispatcher(get(), get()) }
-    single { MessagingServer(8082, get(), get(), get(), get(), get(), Gson()) }
+    single { ConnectionDispatcher(get(), get(), get(), get(), get(), Gson()) }
+    single { MessagingServer(8082, get()) }
 }
 
 fun Application.configuration() {
@@ -73,6 +74,10 @@ class KontourServer() : KoinComponent {
     fun start(args: Array<String>) = runBlocking {
         embeddedServer(Netty, commandLineEnvironment(args)).start()
         val messagingServer: MessagingServer by inject()
-        messagingServer.start()
+        try {
+            messagingServer.start()
+        } finally {
+            messagingServer.stop()
+        }
     }
 }

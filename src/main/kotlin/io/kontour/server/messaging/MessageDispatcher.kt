@@ -1,21 +1,17 @@
 package io.kontour.server.messaging
 
-import io.kontour.server.messaging.connection.ChatToConnectedUserRepository
-import io.kontour.server.messaging.connection.Connection
+import io.kontour.server.messaging.connection.ChatConnectedMembersRepository
+import io.kontour.server.messaging.connection.ConnectionStore
 import io.kontour.server.messaging.messages.ChatMessage
-import io.kontour.server.messaging.connection.ConnectionRepository
+import org.slf4j.LoggerFactory
 
 class MessageDispatcher(
-    private val connectionRepository: ConnectionRepository,
-    private val chatToConnectedUserRepository: ChatToConnectedUserRepository
-){
-    fun registerConnection(userId: String, connection: Connection) {
-        connectionRepository.registerConnection(userId, connection)
-    }
-
+    private val connectionStore: ConnectionStore,
+    private val chatConnectedMembersRepository: ChatConnectedMembersRepository
+) {
     suspend fun handleChatMessage(message: ChatMessage) {
-        chatToConnectedUserRepository.userIds(message.chatId).forEach {
-            connectionRepository.connectionForUser(it).send(message)
+        chatConnectedMembersRepository.userIds(message.chatId).forEach {
+            connectionStore.connectionForUser(it)?.send(message)
         }
     }
 }
