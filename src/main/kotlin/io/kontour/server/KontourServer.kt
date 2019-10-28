@@ -25,6 +25,7 @@ import io.kontour.server.api.user.AuthService
 import io.kontour.server.api.user.TokenIssuer
 import io.kontour.server.api.user.UserService
 import io.kontour.server.common.hashPassword
+import io.kontour.server.common.jwtVerifier
 import io.kontour.server.common.validatePasswordHash
 import io.kontour.server.config.AuthProperties
 import io.kontour.server.config.configureApiRoutes
@@ -32,9 +33,9 @@ import io.kontour.server.config.configureAuth
 import io.kontour.server.messaging.ConnectionDispatcher
 import io.kontour.server.messaging.MessageDispatcher
 import io.kontour.server.messaging.MessagingServer
-import io.kontour.server.messaging.connection.ChatConnectedMembersRepository
+import io.kontour.server.messaging.connection.OnlineInfoRepository
 import io.kontour.server.messaging.connection.ConnectionStore
-import io.kontour.server.messaging.connection.RedisChatConnectedUsersRepository
+import io.kontour.server.messaging.connection.RedisOnlineInfoRepository
 import io.kontour.server.messaging.user.TokenStore
 import io.kontour.server.storage.chat.ChatRepository
 import io.kontour.server.storage.chat.MongoChatRepository
@@ -79,8 +80,9 @@ val kontourModule = module {
     //messaging
     single { TokenStore() }
     single { Jedis() }
+    single { jwtVerifier(get()) }
     single { MongoChatRepository(get<MongoDatabase>().getCollection("chats")) as ChatRepository }
-    single { RedisChatConnectedUsersRepository(get()) as ChatConnectedMembersRepository }
+    single { RedisOnlineInfoRepository(get()) as OnlineInfoRepository }
     single { ConnectionStore() }
     single { MessageDispatcher(get(), get()) }
     single { ConnectionDispatcher(get(), get(), get(), get(), get(), Gson()) }
@@ -100,8 +102,7 @@ fun Application.configureServer() {
         }
     }
 
-    val authProps by inject<AuthProperties>()
-    configureAuth(authProps)
+    configureAuth()
     configureApiRoutes()
 }
 

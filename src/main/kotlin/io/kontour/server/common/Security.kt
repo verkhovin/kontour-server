@@ -18,12 +18,24 @@
 
 package io.kontour.server.common
 
+import com.auth0.jwt.JWT
+import com.auth0.jwt.algorithms.Algorithm
+import com.auth0.jwt.interfaces.Payload
+import io.kontour.server.config.AuthProperties
 import io.ktor.auth.jwt.JWTPrincipal
 import org.mindrot.jbcrypt.BCrypt
 
+fun jwtVerifier(authProperties: AuthProperties) = JWT.require(Algorithm.HMAC512(authProperties.jwtSecret))
+    .withIssuer(authProperties.jwtIssuer)
+    .build()
+
+
 fun validatePasswordHash(password: String, hash: String) = BCrypt.checkpw(password, hash)
 
-fun hashPassword(password: String) = BCrypt.hashpw(password, BCrypt.gensalt())
+fun hashPassword(password: String) = BCrypt.hashpw(password, BCrypt.gensalt())!!
+
+val Payload.userId: String
+    get() = this.claims["id"]?.asString() ?: throw Exception("Field id not found for the token")
 
 val JWTPrincipal.userId: String
-    get() = this.payload.claims["id"]?.asString() ?: throw Exception("Field id not found for the token")
+    get() = this.payload.userId

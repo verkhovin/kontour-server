@@ -19,19 +19,24 @@
 package io.kontour.server.messaging.connection
 
 import redis.clients.jedis.Jedis
+import java.lang.Exception
 
-class RedisChatConnectedUsersRepository(private val jedis: Jedis) : ChatConnectedMembersRepository {
+class RedisOnlineInfoRepository(private val jedis: Jedis) : OnlineInfoRepository {
     override fun userIds(chatId: String): Set<String> = jedis.smembers("chat_user:$chatId")
 
-    override fun addUser(userId: String, chatIds: Collection<String>) {
+    override fun addUser(userId: String, chatIds: Collection<String>, connectionToken: String) {
         chatIds.forEach { chatId ->
             jedis.sadd("chat_user:$chatId", userId)
         }
+        jedis.set("connection_token:$connectionToken", userId)
     }
 
-    override fun deleteUser(userId: String, chatIds: Collection<String>) {
+    override fun deleteUser(userId: String, chatIds: Collection<String>, connectionToken: String) {
         chatIds.forEach { chatId ->
             jedis.srem("chat_user:$chatId", userId)
         }
+        jedis.del("connection_token:$connectionToken")
     }
+
+    override fun userIdByToken(connectionToken: String): String = jedis.get("connection_token:$connectionToken") ?: throw Exception("Token $connectionToken not found")
 }

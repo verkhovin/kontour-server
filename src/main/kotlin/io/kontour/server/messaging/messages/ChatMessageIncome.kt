@@ -16,12 +16,16 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package io.kontour.server.messaging.connection
+package io.kontour.server.messaging.messages
 
-interface ChatConnectedMembersRepository {
-    fun userIds(chatId: String): Collection<String>
+class ChatMessageIncome(
+    val token: String,
+    val chatId: String,
+    val text: String
+)
 
-    fun addUser(userId: String, chatIds: Collection<String>)
-
-    fun deleteUser(userId: String, chatIds: Collection<String>)
-}
+class ChatMessageOutcome(
+    val authorId: String,
+    val chatId: String,
+    val text: String
+)

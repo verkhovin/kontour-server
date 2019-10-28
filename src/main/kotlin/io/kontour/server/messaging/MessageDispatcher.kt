@@ -18,18 +18,19 @@
 
 package io.kontour.server.messaging
 
-import io.kontour.server.messaging.connection.ChatConnectedMembersRepository
+import io.kontour.server.messaging.connection.OnlineInfoRepository
 import io.kontour.server.messaging.connection.ConnectionStore
-import io.kontour.server.messaging.messages.ChatMessage
-import org.slf4j.LoggerFactory
+import io.kontour.server.messaging.messages.ChatMessageIncome
+import io.kontour.server.messaging.messages.ChatMessageOutcome
 
 class MessageDispatcher(
     private val connectionStore: ConnectionStore,
-    private val chatConnectedMembersRepository: ChatConnectedMembersRepository
+    private val onlineInfoRepository: OnlineInfoRepository
 ) {
-    suspend fun handleChatMessage(message: ChatMessage) {
-        chatConnectedMembersRepository.userIds(message.chatId).forEach {
-            connectionStore.connectionForUser(it)?.send(message)
+    suspend fun handleChatMessage(messageIncome: ChatMessageIncome) {
+        val userId = onlineInfoRepository.userIdByToken(messageIncome.token)
+        onlineInfoRepository.userIds(messageIncome.chatId).forEach {
+            connectionStore.connectionForUser(it)?.send(ChatMessageOutcome(userId, messageIncome.chatId, messageIncome.text))
         }
     }
 }

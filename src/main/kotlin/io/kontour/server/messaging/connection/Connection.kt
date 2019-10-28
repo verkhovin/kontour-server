@@ -21,7 +21,8 @@ package io.kontour.server.messaging.connection
 import com.google.gson.Gson
 import io.kontour.server.messaging.MessageDispatcher
 import io.kontour.server.messaging.MessagingServer
-import io.kontour.server.messaging.messages.ChatMessage
+import io.kontour.server.messaging.messages.ChatMessageIncome
+import io.kontour.server.messaging.messages.ChatMessageOutcome
 import io.ktor.util.cio.write
 import io.ktor.util.error
 import kotlinx.coroutines.io.readUTF8Line
@@ -30,6 +31,7 @@ import java.io.Closeable
 
 class Connection(
     val userId: String,
+    val token: String,
     private val socket: KontourSocket,
     private val messageDispatcher: MessageDispatcher
 ) : Closeable {
@@ -40,8 +42,12 @@ class Connection(
     suspend fun listen() {
         while (opened && socket.alive) {
             try {
-                gson.fromJson(socket.input.readUTF8Line(), ChatMessage::class.java).let { message ->
-                    messageDispatcher.handleChatMessage(message)
+                gson.fromJson(socket.input.readUTF8Line(), ChatMessageIncome::class.java).let { message ->
+                    if(message.token == this.token) {
+                        messageDispatcher.handleChatMessage(message)
+                    } else {
+                        throw Exception("Unexpected token for current connection")
+                    }
                 }
             } catch (e: Throwable) {
                 logger.error(e)
@@ -50,8 +56,8 @@ class Connection(
         }
     }
 
-    suspend fun send(chatMessage: ChatMessage) {
-        socket.output.write(gson.toJson(chatMessage))
+    suspend fun send(chatMessageOutcome: ChatMessageOutcome) {
+        socket.output.write(gson.toJson(chatMessageOutcome))
     }
 
     override fun close() {

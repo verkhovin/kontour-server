@@ -24,6 +24,7 @@ import com.auth0.jwt.algorithms.Algorithm
 import io.kontour.server.api.user.AuthService
 import io.kontour.server.api.user.TokenIssuer
 import io.kontour.server.api.user.UserService
+import io.kontour.server.common.jwtVerifier
 import io.kontour.server.common.userId
 import io.ktor.application.Application
 import io.ktor.application.call
@@ -43,11 +44,9 @@ import io.ktor.routing.post
 import io.ktor.routing.routing
 import org.koin.ktor.ext.get
 
-fun Application.configureAuth(authProperties: AuthProperties) {
+fun Application.configureAuth() {
     install(Authentication) {
-        val jwtVerifier: JWTVerifier = JWT.require(Algorithm.HMAC512(authProperties.jwtSecret))
-            .withIssuer(authProperties.jwtIssuer)
-            .build()
+        val jwtVerifier = get<JWTVerifier>()
 
         jwt(name = "access") {
             verifier(jwtVerifier)
