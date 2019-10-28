@@ -18,4 +18,9 @@
 
 package io.kontour.server.config
 
-data class AuthProperties(val jwtSecret: String, val jwtIssuer: String, val expiresAfterSeconds: Int)
+data class AuthProperties(
+    val jwtSecret: String,
+    val jwtIssuer: String,
+    val accessExpiresAfterSeconds: Int,
+    val refreshExpiresAfterSeconds: Int
+)

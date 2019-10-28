@@ -22,13 +22,18 @@ import com.mongodb.client.MongoCollection
 import com.mongodb.client.model.Filters.eq
 import io.kontour.server.storage.user.model.User
 import io.kontour.server.common.objectId
+import io.kontour.server.storage.user.model.Credentials
 import org.bson.Document
 import org.bson.types.ObjectId
 
-class MongoUserRepository(private val userCollection: MongoCollection<Document>): UserRepository {
-    override fun save(user: User): User {
-        userCollection.insertOne(user.toDocument(user.id))
-        return user
+class MongoUserRepository(
+    private val userCollection: MongoCollection<Document>,
+    private val credentialsCollection: MongoCollection<Document>
+) : UserRepository {
+    override fun save(user: User): String {
+        val userId = objectId(user.id)
+        userCollection.insertOne(user.toDocument(userId))
+        return userId.toHexString()
     }
 
     override fun get(id: String): User {
@@ -36,15 +41,26 @@ class MongoUserRepository(private val userCollection: MongoCollection<Document>)
             ?: throw Exception("User with id $id not found")
     }
 
-    fun User.toDocument(id: String?): Document =
-        Document("_id", objectId(id))
+    override fun findByUsername(login: String): User = userCollection.find(eq("login", login))
+        .first()?.toUser() ?: throw Exception("User with login $login not found")
+
+    override fun saveCredentials(credentials: Credentials) {
+        credentialsCollection.insertOne(credentials.toDocument())
+    }
+
+    override fun getPasswordHash(userId: String): String =
+        credentialsCollection.find(eq("_id", objectId(userId)))
+            .first()?.getString("hash") ?: throw Exception("User credentials not found")
+
+    private fun User.toDocument(userId: ObjectId): Document =
+        Document("_id", userId)
             .append("login", login)
             .append("name", name)
             .append("email", email)
             .append("pictureUrl", pictureUrl)
             .append("active", active)
 
-    fun Document.toUser(): User = User(
+    private fun Document.toUser(): User = User(
             getObjectId("_id").toHexString(),
             getString("login"),
             getString("name"),
@@ -52,4 +68,8 @@ class MongoUserRepository(private val userCollection: MongoCollection<Document>)
             getString("pictureUrl"),
             getBoolean("active")
         )
+
+    private fun Credentials.toDocument() =
+        Document("_id", objectId(userId))
+            .append("hash", password)
 }

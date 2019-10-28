@@ -21,10 +21,14 @@ package io.kontour.server.api.user
 import io.kontour.server.api.user.dto.CreateUserRequest
 import io.kontour.server.api.user.dto.CreateUserResponse
 import io.kontour.server.api.user.dto.UserDTO
+import io.kontour.server.storage.user.model.Credentials
 import io.kontour.server.storage.user.model.User
 import io.kontour.server.storage.user.repo.MongoUserRepository
 
-class UserService(private val mongoUserRepository: MongoUserRepository) {
+class UserService(
+    private val mongoUserRepository: MongoUserRepository,
+    private val passwordHashFun: (String) -> String
+) {
     fun createUser(createUserRequest: CreateUserRequest): CreateUserResponse {
         val user = User(
             null,
@@ -34,9 +38,11 @@ class UserService(private val mongoUserRepository: MongoUserRepository) {
             "",
             true
         )
-        val savedUser = mongoUserRepository.save(user)
-
-        return CreateUserResponse(savedUser.toDTO())
+        val savedUserId = mongoUserRepository.save(user)
+        mongoUserRepository.saveCredentials(
+            Credentials(savedUserId, passwordHashFun(createUserRequest.password))
+        )
+        return CreateUserResponse(mongoUserRepository.get(savedUserId).toDTO())
     }
 
     fun getUser(id: String) = mongoUserRepository.get(id).toDTO()

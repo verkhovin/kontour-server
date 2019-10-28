@@ -21,7 +21,11 @@ package io.kontour.server
 import com.google.gson.Gson
 import com.mongodb.client.MongoClients
 import com.mongodb.client.MongoDatabase
+import io.kontour.server.api.user.AuthService
+import io.kontour.server.api.user.TokenIssuer
 import io.kontour.server.api.user.UserService
+import io.kontour.server.common.hashPassword
+import io.kontour.server.common.validatePasswordHash
 import io.kontour.server.config.AuthProperties
 import io.kontour.server.config.configureApiRoutes
 import io.kontour.server.config.configureAuth
@@ -46,19 +50,31 @@ import kotlinx.coroutines.runBlocking
 import org.koin.core.KoinComponent
 import org.koin.core.context.startKoin
 import org.koin.core.inject
+import org.koin.core.scope.Scope
 import org.koin.dsl.module
 import org.koin.ktor.ext.inject
 import redis.clients.jedis.Jedis
 import java.text.DateFormat
 
 val kontourModule = module {
+    fun Scope.mongoCollection(collectionName: String) = get<MongoDatabase>().getCollection(collectionName)
+
     //api
     single { MongoClients.create().getDatabase("kontour") }
-    single { MongoUserRepository(get<MongoDatabase>().getCollection("users")) }
-    single { UserService(get()) }
+    single { MongoUserRepository(mongoCollection("users"), mongoCollection("credentials")) }
+    single { UserService(get()) { hashPassword(it) } }
 
     //auth
-    single { AuthProperties(getProperty("jwt.secret"), getProperty("jwt.issuer"), getProperty("jwt.expires.after.seconds")) }
+    single {
+        AuthProperties(
+            getProperty("jwt.secret"),
+            getProperty("jwt.issuer"),
+            getProperty("jwt.token.access.expiresAfterSeconds"),
+            getProperty("jwt.token.refresh.expiresAfterSeconds")
+        )
+    }
+    single { AuthService(get<MongoUserRepository>()) { pass, hash -> validatePasswordHash(pass, hash) } }
+    single { TokenIssuer(get()) }
 
     //messaging
     single { TokenStore() }
@@ -68,8 +84,7 @@ val kontourModule = module {
     single { ConnectionStore() }
     single { MessageDispatcher(get(), get()) }
     single { ConnectionDispatcher(get(), get(), get(), get(), get(), Gson()) }
-    single { MessagingServer(8082, get()) }
-
+    single { MessagingServer(getProperty("messaging.server.port"), get()) }
 
 }
 

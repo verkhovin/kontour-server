@@ -16,16 +16,9 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package io.kontour.server.storage.user.repo
+package io.kontour.server.storage.user.model
 
-import io.kontour.server.storage.user.model.Credentials
-import io.kontour.server.storage.user.model.User
-
-interface UserRepository {
-    fun save(user: User): String
-    fun get(id: String): User
-    fun findByUsername(login: String): User
-
-    fun saveCredentials(credentials: Credentials)
-    fun getPasswordHash(userId: String): String
-}
+data class Credentials(
+    val userId: String,
+    val password: String
+)

@@ -28,6 +28,8 @@ dependencies {
     implementation("org.mongodb:mongodb-driver-sync:3.11.1")
     //redis
     implementation("redis.clients:jedis:3.1.0")
+
+    implementation("org.mindrot:jbcrypt:0.4")
 }
 
 tasks.withType<KotlinCompile> {

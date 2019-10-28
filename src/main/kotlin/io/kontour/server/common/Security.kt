@@ -16,16 +16,14 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package io.kontour.server.storage.user.repo
+package io.kontour.server.common
 
-import io.kontour.server.storage.user.model.Credentials
-import io.kontour.server.storage.user.model.User
+import io.ktor.auth.jwt.JWTPrincipal
+import org.mindrot.jbcrypt.BCrypt
 
-interface UserRepository {
-    fun save(user: User): String
-    fun get(id: String): User
-    fun findByUsername(login: String): User
+fun validatePasswordHash(password: String, hash: String) = BCrypt.checkpw(password, hash)
 
-    fun saveCredentials(credentials: Credentials)
-    fun getPasswordHash(userId: String): String
-}
+fun hashPassword(password: String) = BCrypt.hashpw(password, BCrypt.gensalt())
+
+val JWTPrincipal.userId: String
+    get() = this.payload.claims["id"]?.asString() ?: throw Exception("Field id not found for the token")

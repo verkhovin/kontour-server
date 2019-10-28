@@ -18,26 +18,16 @@
 
 package io.kontour.server.api.user
 
-import com.auth0.jwt.JWT
-import com.auth0.jwt.algorithms.Algorithm
-import io.kontour.server.config.AuthProperties
-import java.util.*
+import io.kontour.server.storage.user.repo.UserRepository
 import kotlin.Exception
 
-class AuthService(private val authProperties: AuthProperties) {
+class AuthService(
+    private val userRepository: UserRepository,
+    private val passwordHashValidator: (password: String, hash: String) -> Boolean
+) {
     fun authenticate(username: String, password: String): String {
-        //password check here
-        if(username == "verkhovin" && password == "pass123") {
-            val userId = "5dab0f9f91cad227618f6ee1" //fetch user from mongo
-            return JWT.create()
-                .withSubject("Kontour auth")
-                .withIssuer(authProperties.jwtIssuer)
-                .withClaim("id", userId)
-                .withExpiresAt(getExpiration())
-                .sign(Algorithm.HMAC512(authProperties.jwtSecret))
-        }
-        throw Exception("Failed to authenticate")
+        val user = userRepository.findByUsername(username)
+        if (passwordHashValidator(password, userRepository.getPasswordHash(user.id!!)))return user.id
+        else throw Exception("Not authenticated")
     }
-
-    private fun getExpiration() = Date(System.currentTimeMillis() + authProperties.expiresAfterSeconds)
 }
