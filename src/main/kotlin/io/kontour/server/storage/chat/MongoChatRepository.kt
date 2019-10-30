@@ -23,6 +23,22 @@ import com.mongodb.client.model.Filters.eq
 import org.bson.Document
 
 class MongoChatRepository(private val chatCollection: MongoCollection<Document>) : ChatRepository {
+    override fun save(chat: Chat): Chat {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+
+    override fun find(chatId: String): Chat {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+
+    override fun addUser(chatId: String, userId: String) {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+
+    override fun addChat(parentChatId: String, childChatId: String) {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+
     override fun getChatIdsByUserId(userId: String): List<String> =
         chatCollection
             .find(eq("userIds", userId))

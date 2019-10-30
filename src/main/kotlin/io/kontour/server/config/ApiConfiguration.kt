@@ -20,24 +20,17 @@ package io.kontour.server.config
 
 import com.auth0.jwt.JWTVerifier
 import io.kontour.server.api.user.AuthService
-import io.kontour.server.api.user.TokenIssuer
-import io.kontour.server.api.user.UserService
-import io.kontour.server.common.userId
+import io.kontour.server.config.api.authEndpoints
+import io.kontour.server.config.api.chatEndpoints
+import io.kontour.server.config.api.userPublicEndpoints
+import io.kontour.server.config.api.userSecuredEndpoints
 import io.ktor.application.Application
-import io.ktor.application.call
 import io.ktor.application.install
 import io.ktor.auth.Authentication
 import io.ktor.auth.UserIdPrincipal
-import io.ktor.auth.authenticate
-import io.ktor.auth.authentication
 import io.ktor.auth.basic
 import io.ktor.auth.jwt.JWTPrincipal
 import io.ktor.auth.jwt.jwt
-import io.ktor.request.receive
-import io.ktor.response.respond
-import io.ktor.response.respondText
-import io.ktor.routing.get
-import io.ktor.routing.post
 import io.ktor.routing.routing
 import org.koin.ktor.ext.get
 
@@ -76,44 +69,11 @@ fun Application.configureAuth() {
 }
 
 fun Application.configureApiRoutes() {
-    val userService: UserService = get()
-    val tokenIssuer: TokenIssuer = get()
-
     routing {
-
-        post("/api/user") {
-            call.respond(userService.createUser(call.receive()))
-        }
-
-        authenticate("get-token") {
-            post("/auth/signin") {
-                call.respond(
-                    tokenIssuer.generateTokenPair(call.authentication.principal<UserIdPrincipal>()!!.name)
-                )
-            }
-        }
-
-        authenticate("refresh") {
-            post("/auth/refresh") {
-                call.respond(
-                    tokenIssuer.refresh(call.authentication.principal<JWTPrincipal>()!!.userId)
-                )
-            }
-            post("/auth/refresh-full") {
-                call.respond(
-                    tokenIssuer.refreshFull(call.authentication.principal<JWTPrincipal>()!!.userId)
-                )
-            }
-        }
-
-        authenticate("access") {
-            get("/api/version") {
-                call.respondText("Alpha")
-            }
-            get("/api/user/{id}") {
-                call.respond(userService.getUser(call.parameters["id"]!!))
-            }
-        }
+        authEndpoints()
+        userPublicEndpoints()
+        userSecuredEndpoints()
+        chatEndpoints()
     }
 }
 
