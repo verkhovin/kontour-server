@@ -20,9 +20,9 @@ package io.kontour.server.storage.user.repo
 
 import com.mongodb.client.MongoCollection
 import com.mongodb.client.model.Filters.eq
-import io.kontour.server.storage.user.model.User
 import io.kontour.server.common.objectId
 import io.kontour.server.storage.user.model.Credentials
+import io.kontour.server.storage.user.model.User
 import org.bson.Document
 import org.bson.types.ObjectId
 
@@ -61,13 +61,13 @@ class MongoUserRepository(
             .append("active", active)
 
     private fun Document.toUser(): User = User(
-            getObjectId("_id").toHexString(),
-            getString("login"),
-            getString("name"),
-            getString("email"),
-            getString("pictureUrl"),
-            getBoolean("active")
-        )
+        getObjectId("_id").toHexString(),
+        getString("login"),
+        getString("name"),
+        getString("email"),
+        getString("pictureUrl"),
+        getBoolean("active")
+    )
 
     private fun Credentials.toDocument() =
         Document("_id", objectId(userId))

@@ -35,7 +35,7 @@ class MessagingServer(
     private var keepRunning = true
     suspend fun start() = runBlocking {
         val server = upServer()
-        while(keepRunning) {
+        while (keepRunning) {
             val socket = server.accept()
             launch {
                 try {
@@ -45,7 +45,7 @@ class MessagingServer(
                         connection.listen()
                     } finally {
                         connectionDispatcher.closeConnection(connection)
-                     }
+                    }
                 } catch (e: Throwable) {
                     logger.error(e)
                 } finally {

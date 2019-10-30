@@ -18,7 +18,7 @@
 
 package io.kontour.server.storage.chat
 
-data class Chat (
+data class Chat(
     val id: String?,
     val chatType: ChatType,
     val name: String,

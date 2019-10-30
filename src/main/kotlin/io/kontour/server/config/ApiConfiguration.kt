@@ -18,13 +18,10 @@
 
 package io.kontour.server.config
 
-import com.auth0.jwt.JWT
 import com.auth0.jwt.JWTVerifier
-import com.auth0.jwt.algorithms.Algorithm
 import io.kontour.server.api.user.AuthService
 import io.kontour.server.api.user.TokenIssuer
 import io.kontour.server.api.user.UserService
-import io.kontour.server.common.jwtVerifier
 import io.kontour.server.common.userId
 import io.ktor.application.Application
 import io.ktor.application.call
@@ -119,4 +116,5 @@ fun Application.configureApiRoutes() {
         }
     }
 }
+
 

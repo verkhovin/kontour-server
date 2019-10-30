@@ -43,7 +43,7 @@ class Connection(
         while (opened && socket.alive) {
             try {
                 gson.fromJson(socket.input.readUTF8Line(), ChatMessageIncome::class.java).let { message ->
-                    if(message.token == this.token) {
+                    if (message.token == this.token) {
                         messageDispatcher.handleChatMessage(message)
                     } else {
                         throw Exception("Unexpected token for current connection")

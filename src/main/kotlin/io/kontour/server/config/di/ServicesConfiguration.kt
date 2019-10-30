@@ -16,10 +16,19 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package io.kontour.server.messaging.user
+package io.kontour.server.config.di
 
-class TokenStore {
-    //TODO
-    fun getUserIdByToken(token: String) =
-        if (token == "verkhovin") "5dab0f9f91cad227618f6ee1" else "5daddb176ac0a00f8b1524eb"
+import io.kontour.server.api.user.AuthService
+import io.kontour.server.api.user.TokenIssuer
+import io.kontour.server.api.user.UserService
+import io.kontour.server.common.hashPassword
+import io.kontour.server.common.validatePasswordHash
+import io.kontour.server.storage.user.repo.MongoUserRepository
+import org.koin.core.module.Module
+
+
+fun Module.configureServices() {
+    single { UserService(get()) { hashPassword(it) } }
+    single { AuthService(get<MongoUserRepository>()) { pass, hash -> validatePasswordHash(pass, hash) } }
+    single { TokenIssuer(get()) }
 }

@@ -18,8 +18,8 @@
 
 package io.kontour.server.messaging
 
-import io.kontour.server.messaging.connection.OnlineInfoRepository
 import io.kontour.server.messaging.connection.ConnectionStore
+import io.kontour.server.messaging.connection.OnlineInfoRepository
 import io.kontour.server.messaging.messages.ChatMessageIncome
 import io.kontour.server.messaging.messages.ChatMessageOutcome
 
@@ -30,7 +30,8 @@ class MessageDispatcher(
     suspend fun handleChatMessage(messageIncome: ChatMessageIncome) {
         val userId = onlineInfoRepository.userIdByToken(messageIncome.token)
         onlineInfoRepository.userIds(messageIncome.chatId).forEach {
-            connectionStore.connectionForUser(it)?.send(ChatMessageOutcome(userId, messageIncome.chatId, messageIncome.text))
+            connectionStore.connectionForUser(it)
+                ?.send(ChatMessageOutcome(userId, messageIncome.chatId, messageIncome.text))
         }
     }
 }

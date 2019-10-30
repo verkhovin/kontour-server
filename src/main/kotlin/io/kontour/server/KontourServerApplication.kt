@@ -16,10 +16,17 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package io.kontour.server.messaging.user
+package io.kontour.server
 
-class TokenStore {
-    //TODO
-    fun getUserIdByToken(token: String) =
-        if (token == "verkhovin") "5dab0f9f91cad227618f6ee1" else "5daddb176ac0a00f8b1524eb"
+import io.kontour.server.config.di.kontourModule
+import org.koin.core.context.startKoin
+
+fun main(args: Array<String>) {
+    startKoin {
+        fileProperties()
+        environmentProperties()
+        modules(kontourModule)
+    }
+
+    KontourServer().start()
 }

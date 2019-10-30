@@ -16,10 +16,16 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package io.kontour.server.messaging.user
+package io.kontour.server.config.di
 
-class TokenStore {
-    //TODO
-    fun getUserIdByToken(token: String) =
-        if (token == "verkhovin") "5dab0f9f91cad227618f6ee1" else "5daddb176ac0a00f8b1524eb"
+import com.mongodb.client.MongoClients
+import com.mongodb.client.MongoDatabase
+import io.kontour.server.storage.user.repo.MongoUserRepository
+import org.koin.core.module.Module
+import org.koin.core.scope.Scope
+
+fun Module.configurePersistenceComponents() {
+    fun Scope.mongoCollection(collectionName: String) = get<MongoDatabase>().getCollection(collectionName)
+    single { MongoClients.create().getDatabase("kontour") }
+    single { MongoUserRepository(mongoCollection("users"), mongoCollection("credentials")) }
 }

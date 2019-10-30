@@ -19,7 +19,6 @@
 package io.kontour.server.api.user
 
 import io.kontour.server.storage.user.repo.UserRepository
-import kotlin.Exception
 
 class AuthService(
     private val userRepository: UserRepository,
@@ -27,7 +26,7 @@ class AuthService(
 ) {
     fun authenticate(username: String, password: String): String {
         val user = userRepository.findByUsername(username)
-        if (passwordHashValidator(password, userRepository.getPasswordHash(user.id!!)))return user.id
+        if (passwordHashValidator(password, userRepository.getPasswordHash(user.id!!))) return user.id
         else throw Exception("Not authenticated")
     }
 }

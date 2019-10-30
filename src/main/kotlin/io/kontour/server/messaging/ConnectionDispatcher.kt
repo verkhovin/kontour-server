@@ -21,10 +21,10 @@ package io.kontour.server.messaging
 import com.auth0.jwt.JWTVerifier
 import com.google.gson.Gson
 import io.kontour.server.common.userId
-import io.kontour.server.messaging.connection.OnlineInfoRepository
 import io.kontour.server.messaging.connection.Connection
 import io.kontour.server.messaging.connection.ConnectionStore
 import io.kontour.server.messaging.connection.KontourSocket
+import io.kontour.server.messaging.connection.OnlineInfoRepository
 import io.kontour.server.messaging.messages.WelcomeMessage
 import io.kontour.server.storage.chat.ChatRepository
 import io.ktor.util.cio.write
@@ -40,11 +40,12 @@ class ConnectionDispatcher(
     private val gson: Gson
 ) {
     suspend fun openConnection(socket: KontourSocket): Connection {
-        val userId = welcome(socket.input.readUTF8Line()!!) //here we need to validate if user can connect to chat workspace
+        val userId =
+            welcome(socket.input.readUTF8Line()!!) //here we need to validate if user can connect to chat workspace
         val connectionToken = UUID.randomUUID().toString()
         onlineInfoRepository.addUser(userId, chatRepository.getChatIdsByUserId(userId), connectionToken)
         socket.output.write(connectionToken)
-        return Connection(userId,connectionToken, socket, messageDispatcher).also {
+        return Connection(userId, connectionToken, socket, messageDispatcher).also {
             connectionStore.registerConnection(userId, it)
         }
     }
@@ -52,7 +53,11 @@ class ConnectionDispatcher(
     fun closeConnection(connection: Connection) {
         connection.close()
         val userId = connection.userId
-        onlineInfoRepository.deleteUser(userId, chatRepository.getChatIdsByUserId(userId), onlineInfoRepository.userIdByToken(connection.token))
+        onlineInfoRepository.deleteUser(
+            userId,
+            chatRepository.getChatIdsByUserId(userId),
+            onlineInfoRepository.userIdByToken(connection.token)
+        )
         connectionStore.removeConnection(userId)
     }
 
