@@ -34,7 +34,8 @@ class MongoChatRepository(private val chatCollection: MongoCollection<Document>)
     }
 
     override fun find(chatId: String): Chat =
-        chatCollection.find(eq("_id", ObjectId(chatId))).first()?.toChat() ?: throw Exception("Chat with id $chatId not found")
+        chatCollection.find(eq("_id", ObjectId(chatId))).first()?.toChat()
+            ?: throw Exception("Chat with id $chatId not found")
 
 
     override fun addUser(chatId: String, userId: String) {

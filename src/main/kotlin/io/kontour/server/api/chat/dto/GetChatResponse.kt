@@ -18,7 +18,7 @@
 
 package io.kontour.server.api.chat.dto
 
-data class GetChatResponse (
+data class GetChatResponse(
     val chatDTO: ChatDTO,
     val messageDTO: List<MessageDTO>
 )

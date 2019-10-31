@@ -38,7 +38,13 @@ class MessageDispatcher(
             connectionStore.connectionForUser(it)
                 ?.send(ChatMessageOutcome(userId, messageIncome.chatId, messageIncome.text))
             launch {
-                messageRepository.save(ChatMessage(userId, messageIncome.chatId, messageIncome.text)) //Insure that it is running async
+                messageRepository.save(
+                    ChatMessage(
+                        userId,
+                        messageIncome.chatId,
+                        messageIncome.text
+                    )
+                ) //Insure that it is running async
             }
         }
     }

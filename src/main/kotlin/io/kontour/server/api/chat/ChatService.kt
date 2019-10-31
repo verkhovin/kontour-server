@@ -48,10 +48,9 @@ class ChatService(
         chatRepository.addUser(chatId, userId)
     }
 
-    fun addChildChat(parentChatId: String, childChatId: String){
+    fun addChildChat(parentChatId: String, childChatId: String) {
         chatRepository.addChat(parentChatId, childChatId)
     }
-
 
 
     private fun ChatDTO.toEntity() = Chat(id, chatType, name, userIds, chatIds)

@@ -22,6 +22,6 @@ data class CreateChatRequest(
     val chatDTO: ChatDTO
 )
 
-class CreateChatResponse (
+class CreateChatResponse(
     val chatDTO: ChatDTO
 )

@@ -23,7 +23,6 @@ import com.mongodb.client.model.Filters.eq
 import com.mongodb.client.model.Sorts.ascending
 import com.mongodb.client.model.Sorts.orderBy
 import io.kontour.server.common.objectId
-import org.bson.BasicBSONObject
 import org.bson.Document
 import org.bson.types.ObjectId
 

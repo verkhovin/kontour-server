@@ -20,7 +20,7 @@ package io.kontour.server.api.chat.dto
 
 import io.kontour.server.storage.chat.ChatType
 
-data class ChatDTO (
+data class ChatDTO(
     val id: String?,
     val chatType: ChatType,
     val name: String,
