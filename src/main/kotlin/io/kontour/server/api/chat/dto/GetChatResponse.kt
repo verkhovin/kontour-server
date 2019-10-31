@@ -16,12 +16,9 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package io.kontour.server.storage.chat
+package io.kontour.server.api.chat.dto
 
-interface ChatRepository {
-    fun save(chat: Chat): String
-    fun find(chatId: String): Chat
-    fun getChatIdsByUserId(userId: String): Collection<String>
-    fun addUser(chatId: String, userId: String)
-    fun addChat(parentChatId: String, childChatId: String)
-}
+data class GetChatResponse (
+    val chatDTO: ChatDTO,
+    val messageDTO: List<MessageDTO>
+)

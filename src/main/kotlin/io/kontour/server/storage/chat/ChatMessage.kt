@@ -18,10 +18,19 @@
 
 package io.kontour.server.storage.chat
 
-interface ChatRepository {
-    fun save(chat: Chat): String
-    fun find(chatId: String): Chat
-    fun getChatIdsByUserId(userId: String): Collection<String>
-    fun addUser(chatId: String, userId: String)
-    fun addChat(parentChatId: String, childChatId: String)
+import java.util.*
+
+data class ChatMessage(
+    val id: String?,
+    val authorId: String,
+    val chatId: String,
+    val text: String,
+    val date: Date = Date(),
+    val edited: Boolean = false
+) {
+    constructor(
+        authorId: String,
+        chatId: String,
+        text: String
+    ) : this(null, authorId, chatId, text, Date(), false)
 }

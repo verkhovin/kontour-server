@@ -22,16 +22,24 @@ import io.kontour.server.messaging.connection.ConnectionStore
 import io.kontour.server.messaging.connection.OnlineInfoRepository
 import io.kontour.server.messaging.messages.ChatMessageIncome
 import io.kontour.server.messaging.messages.ChatMessageOutcome
+import io.kontour.server.storage.chat.ChatMessage
+import io.kontour.server.storage.chat.MessageRepository
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
 
 class MessageDispatcher(
     private val connectionStore: ConnectionStore,
-    private val onlineInfoRepository: OnlineInfoRepository
+    private val onlineInfoRepository: OnlineInfoRepository,
+    private val messageRepository: MessageRepository
 ) {
-    suspend fun handleChatMessage(messageIncome: ChatMessageIncome) {
+    suspend fun handleChatMessage(messageIncome: ChatMessageIncome) = coroutineScope {
         val userId = onlineInfoRepository.userIdByToken(messageIncome.token)
         onlineInfoRepository.userIds(messageIncome.chatId).forEach {
             connectionStore.connectionForUser(it)
                 ?.send(ChatMessageOutcome(userId, messageIncome.chatId, messageIncome.text))
+            launch {
+                messageRepository.save(ChatMessage(userId, messageIncome.chatId, messageIncome.text)) //Insure that it is running async
+            }
         }
     }
 }

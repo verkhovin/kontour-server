@@ -18,10 +18,7 @@
 
 package io.kontour.server.storage.chat
 
-interface ChatRepository {
-    fun save(chat: Chat): String
-    fun find(chatId: String): Chat
-    fun getChatIdsByUserId(userId: String): Collection<String>
-    fun addUser(chatId: String, userId: String)
-    fun addChat(parentChatId: String, childChatId: String)
+interface MessageRepository {
+    fun save(chatMessage: ChatMessage)
+    fun getLastMessages(chatId: String, count: Int): List<ChatMessage>
 }

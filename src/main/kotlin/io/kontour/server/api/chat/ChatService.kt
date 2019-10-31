@@ -21,18 +21,27 @@ package io.kontour.server.api.chat
 import io.kontour.server.api.chat.dto.ChatDTO
 import io.kontour.server.api.chat.dto.CreateChatRequest
 import io.kontour.server.api.chat.dto.CreateChatResponse
+import io.kontour.server.api.chat.dto.GetChatResponse
+import io.kontour.server.api.chat.dto.MessageDTO
 import io.kontour.server.storage.chat.Chat
+import io.kontour.server.storage.chat.ChatMessage
 import io.kontour.server.storage.chat.ChatRepository
+import io.kontour.server.storage.chat.MessageRepository
 
 class ChatService(
-    private val chatRepository: ChatRepository
+    private val chatRepository: ChatRepository,
+    private val messageRepository: MessageRepository
 ) {
     fun createChat(createChatRequest: CreateChatRequest): CreateChatResponse {
         val chat = createChatRequest.chatDTO.toEntity()
-        return CreateChatResponse(chatRepository.save(chat).toDTO())
+        val savedChatId = chatRepository.save(chat)
+        return CreateChatResponse(chatRepository.find(savedChatId).toDTO())
     }
 
-    fun getChat(chatId: String): ChatDTO = chatRepository.find(chatId).toDTO()
+    fun getChat(chatId: String): GetChatResponse = GetChatResponse(
+        chatRepository.find(chatId).toDTO(),
+        messageRepository.getLastMessages(chatId, 20).map { it.toDTO() }
+    )
 
 
     fun addUserToChat(chatId: String, userId: String) {
@@ -43,6 +52,9 @@ class ChatService(
         chatRepository.addChat(parentChatId, childChatId)
     }
 
+
+
     private fun ChatDTO.toEntity() = Chat(id, chatType, name, userIds, chatIds)
     private fun Chat.toDTO() = ChatDTO(id, chatType, name, userIds, chatIds)
+    private fun ChatMessage.toDTO() = MessageDTO(authorId, text, date, edited)
 }
