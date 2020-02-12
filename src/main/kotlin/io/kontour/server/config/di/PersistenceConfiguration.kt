@@ -23,9 +23,12 @@ import com.mongodb.client.MongoDatabase
 import io.kontour.server.storage.user.repo.MongoUserRepository
 import org.koin.core.module.Module
 import org.koin.core.scope.Scope
+import redis.clients.jedis.Jedis
 
 fun Module.configurePersistenceComponents() {
     fun Scope.mongoCollection(collectionName: String) = get<MongoDatabase>().getCollection(collectionName)
     single { MongoClients.create().getDatabase("kontour") }
     single { MongoUserRepository(mongoCollection("users"), mongoCollection("credentials")) }
+    single { Jedis() }
+
 }

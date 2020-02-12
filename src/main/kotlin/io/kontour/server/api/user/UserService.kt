@@ -40,7 +40,10 @@ class UserService(
         )
         val savedUserId = mongoUserRepository.save(user)
         mongoUserRepository.saveCredentials(
-            Credentials(savedUserId, passwordHashFun(createUserRequest.password))
+            Credentials(
+                savedUserId,
+                if (createUserRequest.password == "") "" else passwordHashFun(createUserRequest.password)
+            )
         )
         return CreateUserResponse(mongoUserRepository.get(savedUserId).toDTO())
     }

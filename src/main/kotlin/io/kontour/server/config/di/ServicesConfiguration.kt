@@ -18,6 +18,7 @@
 
 package io.kontour.server.config.di
 
+import io.kontour.server.api.chat.ChatService
 import io.kontour.server.api.user.AuthService
 import io.kontour.server.api.user.TokenIssuer
 import io.kontour.server.api.user.UserService
@@ -31,4 +32,5 @@ fun Module.configureServices() {
     single { UserService(get()) { hashPassword(it) } }
     single { AuthService(get<MongoUserRepository>()) { pass, hash -> validatePasswordHash(pass, hash) } }
     single { TokenIssuer(get()) }
+    single { ChatService(get(), get()) }
 }

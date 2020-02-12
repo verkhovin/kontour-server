@@ -26,7 +26,10 @@ class AuthService(
 ) {
     fun authenticate(username: String, password: String): String {
         val user = userRepository.findByUsername(username)
-        if (passwordHashValidator(password, userRepository.getPasswordHash(user.id!!))) return user.id
-        else throw Exception("Not authenticated")
+        val passwordHash = userRepository.getPasswordHash(user.id!!)
+        if (passwordHash.isNotEmpty() && passwordHashValidator(password, passwordHash)) {
+            return user.id
+        }
+        throw Exception("Not authenticated")
     }
 }

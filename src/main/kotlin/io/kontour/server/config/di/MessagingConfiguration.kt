@@ -29,18 +29,20 @@ import io.kontour.server.messaging.connection.OnlineInfoRepository
 import io.kontour.server.messaging.connection.RedisOnlineInfoRepository
 import io.kontour.server.messaging.user.TokenStore
 import io.kontour.server.storage.chat.ChatRepository
+import io.kontour.server.storage.chat.MessageRepository
 import io.kontour.server.storage.chat.MongoChatRepository
+import io.kontour.server.storage.chat.MongoMessageRepository
 import org.koin.core.module.Module
 import redis.clients.jedis.Jedis
 
 fun Module.configureMessagingComponents() {
     single { TokenStore() }
-    single { Jedis() }
     single { jwtVerifier(get()) }
     single { MongoChatRepository(get<MongoDatabase>().getCollection("chats")) as ChatRepository }
+    single { MongoMessageRepository(get<MongoDatabase>().getCollection("messages")) as MessageRepository }
     single { RedisOnlineInfoRepository(get()) as OnlineInfoRepository }
     single { ConnectionStore() }
-    single { MessageDispatcher(get(), get()) }
+    single { MessageDispatcher(get(), get(), get()) }
     single { ConnectionDispatcher(get(), get(), get(), get(), get(), Gson()) }
     single { MessagingServer(getProperty("messaging.server.port"), get()) }
 }

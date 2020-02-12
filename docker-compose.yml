@@ -1,0 +1,21 @@
+version: '3'
+services:
+  kontour-server:
+    container_name: kontour-server
+    build:
+      context: .
+      
+    image: kontour-server:latest
+    expose:
+      - 8080
+  mongo:
+    image: mongo
+    container_name: mongo
+    environment:
+      - MONGO_INITDB_DATABASE=kontour
+      - MONGO_INITDB_ROOT_USERNAME=root
+      - MONGO_INITDB_ROOT_PASSWORD=pwd
+    volumes:
+      - ./mongo-volume:/data/db
+    ports:
+      - 27017:27017
