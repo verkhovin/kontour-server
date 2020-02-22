@@ -34,6 +34,10 @@ fun validatePasswordHash(password: String, hash: String) = BCrypt.checkpw(passwo
 
 fun hashPassword(password: String) = BCrypt.hashpw(password, BCrypt.gensalt())!!
 
+fun validatePassword(password: String) {
+    if (password.isNullOrEmpty() || password.length < 8) throw WeakPasswordException()
+}
+
 val Payload.userId: String
     get() = this.claims["id"]?.asString() ?: throw Exception("Field id not found for the token")
 

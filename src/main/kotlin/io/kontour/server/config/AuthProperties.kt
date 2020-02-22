@@ -22,5 +22,6 @@ data class AuthProperties(
     val jwtSecret: String,
     val jwtIssuer: String,
     val accessExpiresAfterSeconds: Int,
-    val refreshExpiresAfterSeconds: Int
+    val refreshExpiresAfterSeconds: Int,
+    val passwordSetTokenExpiresAfterDays: Int
 )

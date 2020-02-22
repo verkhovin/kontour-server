@@ -16,7 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package io.kontour.server.api.user
+package io.kontour.server.service.security
 
 import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
@@ -34,6 +34,10 @@ class TokenIssuer(private val authProperties: AuthProperties) {
         accessToken(userId),
         "NotSupplied"
     )
+
+    fun generateSetPasswordToken(userId: String) {
+        token(userId, "password-set", authProperties.passwordSetTokenExpiresAfterDays)
+    }
 
     private fun tokenPair(userId: String): TokenPair {
         return TokenPair(

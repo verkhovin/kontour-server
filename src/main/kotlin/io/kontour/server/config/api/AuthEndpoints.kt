@@ -18,7 +18,7 @@
 
 package io.kontour.server.config.api
 
-import io.kontour.server.api.user.TokenIssuer
+import io.kontour.server.service.security.TokenIssuer
 import io.kontour.server.common.userId
 import io.ktor.application.call
 import io.ktor.auth.UserIdPrincipal

@@ -16,20 +16,9 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package io.kontour.server.config.di
+package io.kontour.server.api.pages.dto
 
-import io.kontour.server.api.chat.ChatService
-import io.kontour.server.api.user.AuthService
-import io.kontour.server.service.security.TokenIssuer
-import io.kontour.server.api.user.UserService
-import io.kontour.server.common.validatePasswordHash
-import io.kontour.server.storage.user.repo.MongoUserRepository
-import org.koin.core.module.Module
-
-
-fun Module.configureServices() {
-    single { UserService(get(), get(), get()) }
-    single { AuthService(get<MongoUserRepository>()) { pass, hash -> validatePasswordHash(pass, hash) } }
-    single { TokenIssuer(get()) }
-    single { ChatService(get(), get()) }
-}
+data class SetPasswordPage(
+    val userName: String,
+    val workSpaceName: String
+)

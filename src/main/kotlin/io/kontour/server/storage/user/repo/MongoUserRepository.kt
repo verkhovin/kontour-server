@@ -23,6 +23,7 @@ import com.mongodb.client.model.Filters.eq
 import io.kontour.server.common.objectId
 import io.kontour.server.storage.user.model.Credentials
 import io.kontour.server.storage.user.model.User
+import io.kontour.server.storage.user.model.UserCredentialsNotFoundException
 import org.bson.Document
 import org.bson.types.ObjectId
 
@@ -50,7 +51,7 @@ class MongoUserRepository(
 
     override fun getPasswordHash(userId: String): String =
         credentialsCollection.find(eq("_id", objectId(userId)))
-            .first()?.getString("hash") ?: throw Exception("User credentials not found")
+            .first()?.getString("hash") ?: throw UserCredentialsNotFoundException(userId)
 
     private fun User.toDocument(userId: ObjectId): Document =
         Document("_id", userId)

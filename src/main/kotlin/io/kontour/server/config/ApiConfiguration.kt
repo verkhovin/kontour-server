@@ -54,6 +54,13 @@ fun Application.configureAuth() {
             realm = "Kontour Server"
         }
 
+        jwt(name="password-set") {
+            verifier(jwtVerifier)
+            validate {
+                if(it.payload.subject == "password-set") JWTPrincipal(it.payload) else null
+            }
+        }
+
         val authService = get<AuthService>()
         basic("get-token") {
             realm = "Kontour Server Token Pair"

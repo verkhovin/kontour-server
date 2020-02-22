@@ -17,11 +17,14 @@ repositories {
 
 dependencies {
     implementation(kotlin("stdlib-jdk8"))
+    implementation("org.jetbrains.kotlinx:kotlinx-html-jvm:0.7.1")
+
     //ktor
     implementation("io.ktor:ktor-server-netty:$ktorVersion")
     implementation("io.ktor:ktor-gson:$ktorVersion")
     implementation("ch.qos.logback:logback-classic:1.2.3")
     implementation("io.ktor:ktor-auth-jwt:$ktorVersion")
+    implementation("io.ktor:ktor-freemarker:$ktorVersion")
     //koin
     implementation("org.koin:koin-ktor:$koinVersion")
     //mongo
@@ -30,6 +33,7 @@ dependencies {
     implementation("redis.clients:jedis:3.1.0")
 
     implementation("org.mindrot:jbcrypt:0.4")
+    implementation("com.sun.mail:javax.mail:1.6.2")
 }
 
 tasks.withType<KotlinCompile> {
